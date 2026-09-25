@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: devverse
+    runtime: node
+    plan: standard
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: GOOGLE_CLOUD_PROJECT_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_EMAIL
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+        sync: false
+      - key: GOOGLE_DRIVE_ROOT_FOLDER_ID
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: development
+      - key: EMAIL_FROM
+        value: '"DevVerse" <no-reply@devverse.io>'
+      - key: ADMIN_BOOTSTRAP_TOKEN
+        generateValue: true
