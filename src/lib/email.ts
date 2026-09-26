@@ -7,7 +7,7 @@ interface SendEmailParams {
   text: string;
 }
 
-const emailFrom = process.env.EMAIL_FROM || 'DevVerse <onboarding@resend.dev>';
+const emailFrom = process.env.EMAIL_FROM || 'DevVerse <ombid52@gmail.com>';
 
 let transporter: nodemailer.Transporter | null = null;
 
@@ -42,7 +42,7 @@ function getTransporter(): nodemailer.Transporter | null {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailParams): Promise<boolean> {
-  // 1. Brevo REST API (HTTPS port 443 - sends to ANY recipient without requiring a custom domain)
+  // 1. Primary Cloud Provider: Brevo REST API (HTTPS port 443 - sends to ANY recipient without requiring a custom domain)
   const brevoApiKey = process.env.BREVO_API_KEY?.trim();
   if (brevoApiKey) {
     try {
@@ -76,38 +76,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams): P
     }
   }
 
-  // 2. Resend REST API (over HTTPS port 443)
-  const resendApiKey = process.env.RESEND_API_KEY?.trim();
-  if (resendApiKey) {
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: process.env.EMAIL_FROM || "DevVerse <onboarding@resend.dev>",
-          to: [to],
-          subject,
-          html,
-          text,
-        }),
-      });
-
-      if (res.ok) {
-        console.log(`[DevVerse Email] Successfully dispatched via Resend API to ${to}`);
-        return true;
-      } else {
-        const errJson = await res.json().catch(() => ({}));
-        console.error("[DevVerse Email] Resend API error:", errJson);
-      }
-    } catch (err: any) {
-      console.error("[DevVerse Email] Resend API call failed:", err.message);
-    }
-  }
-
-  // 2. Secondary Provider: Direct SMTP Transport
+  // 2. Direct SMTP Transport (local development / custom server fallback)
   const mailer = getTransporter();
 
   if (mailer) {

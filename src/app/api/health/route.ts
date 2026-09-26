@@ -42,13 +42,10 @@ export async function GET() {
     email: {
       provider: process.env.BREVO_API_KEY
         ? "brevo-api"
-        : process.env.RESEND_API_KEY
-        ? "resend-api"
         : process.env.EMAIL_PROVIDER === "smtp"
         ? "smtp-nodemailer"
         : "development-fallback",
       hasBrevoApiKey: Boolean(process.env.BREVO_API_KEY),
-      hasResendApiKey: Boolean(process.env.RESEND_API_KEY),
     },
   });
 }
