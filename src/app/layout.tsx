@@ -4,11 +4,15 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "DevVerse — Cloud Application Showcase & Source-Code Platform",
+  title: "DevVerse",
   description:
     "Discover exceptional software applications, explore comprehensive source code repositories, and publish applications across Windows, Linux, macOS, Android, and Web.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
   },
 };
 
