@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
     const total = await applications.countDocuments(query);
     const cursor = await applications.find(query, {
-      sort: sortOptions,
+      sort: sortOptions as any,
       skip,
       limit,
     });

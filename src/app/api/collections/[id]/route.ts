@@ -25,7 +25,7 @@ export async function GET(
     // Populate applications
     let apps: any[] = [];
     if (collection.applicationIds && collection.applicationIds.length > 0) {
-      const appIds = collection.applicationIds.map((appId: string) => toObjectId(appId));
+      const appIds = collection.applicationIds.map((appId: any) => toObjectId(appId));
       const cursor = await applications.find({
         _id: { $in: appIds },
         isDeleted: false,

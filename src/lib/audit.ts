@@ -54,8 +54,6 @@ function sanitizeMetadata(metadata?: Record<string, unknown>): Record<string, un
 }
 
 export async function logActivity(params: LogActivityParams): Promise<ActivityLog> {
-  const { activityLogs } = await getCollections();
-
   const logEntry: ActivityLog = {
     timestamp: new Date(),
     actorId: params.actorId,
@@ -70,6 +68,7 @@ export async function logActivity(params: LogActivityParams): Promise<ActivityLo
   };
 
   try {
+    const { activityLogs } = await getCollections();
     const result = await activityLogs.insertOne(logEntry);
     logEntry._id = result.insertedId;
   } catch (err: any) {

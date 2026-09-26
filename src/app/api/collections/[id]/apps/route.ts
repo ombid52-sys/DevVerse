@@ -35,7 +35,7 @@ export async function POST(
     }
 
     const appIdStr = app._id.toString();
-    const existingIds = (collection.applicationIds || []).map((i: string) => i.toString());
+    const existingIds = (collection.applicationIds || []).map((i: any) => i.toString());
 
     // Prevent duplicate entries
     if (existingIds.includes(appIdStr)) {
