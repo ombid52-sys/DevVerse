@@ -42,7 +42,41 @@ function getTransporter(): nodemailer.Transporter | null {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailParams): Promise<boolean> {
-  // 1. Primary Cloud Provider: Resend REST API (over HTTPS port 443 - completely bypasses Render SMTP port blocks)
+  // 1. Brevo REST API (HTTPS port 443 - sends to ANY recipient without requiring a custom domain)
+  const brevoApiKey = process.env.BREVO_API_KEY?.trim();
+  if (brevoApiKey) {
+    try {
+      const senderEmail = process.env.BREVO_SENDER_EMAIL?.trim() || "ombid52@gmail.com";
+      const senderName = process.env.BREVO_SENDER_NAME || "DevVerse";
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: senderName, email: senderEmail },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+          textContent: text,
+        }),
+      });
+
+      if (res.ok) {
+        console.log(`[DevVerse Email] Successfully dispatched via Brevo API to ${to}`);
+        return true;
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        console.error("[DevVerse Email] Brevo API error:", errJson);
+      }
+    } catch (err: any) {
+      console.error("[DevVerse Email] Brevo API call failed:", err.message);
+    }
+  }
+
+  // 2. Resend REST API (over HTTPS port 443)
   const resendApiKey = process.env.RESEND_API_KEY?.trim();
   if (resendApiKey) {
     try {
