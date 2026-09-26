@@ -76,9 +76,13 @@ export async function POST(req: NextRequest) {
     await verificationCodes.insertOne(newRecord);
 
     if (type === "REGISTRATION") {
-      await sendVerificationCodeEmail(email, newCode, user.username);
+      sendVerificationCodeEmail(email, newCode, user.username).catch((err) => {
+        console.error("[Resend Code Email Error]", err.message);
+      });
     } else {
-      await sendPasswordResetEmail(email, newCode, user.username);
+      sendPasswordResetEmail(email, newCode, user.username).catch((err) => {
+        console.error("[Resend Password Reset Email Error]", err.message);
+      });
     }
 
     await logActivity({

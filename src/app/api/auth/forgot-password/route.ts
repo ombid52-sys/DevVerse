@@ -48,7 +48,9 @@ export async function POST(req: NextRequest) {
       };
 
       await verificationCodes.insertOne(resetRecord);
-      await sendPasswordResetEmail(email, code, user.username);
+      sendPasswordResetEmail(email, code, user.username).catch((err) => {
+        console.error("[Forgot Password Email Error]", err.message);
+      });
 
       await logActivity({
         action: "AUTH_FORGOT_PASSWORD_REQUEST",

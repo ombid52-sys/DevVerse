@@ -26,11 +26,14 @@ function getTransporter(): nodemailer.Transporter | null {
     transporter = nodemailer.createTransport({
       host,
       port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === "true",
+      secure: process.env.SMTP_SECURE === "true" || Number(process.env.SMTP_PORT) === 465,
       auth: {
         user: process.env.SMTP_USER || "",
         pass: cleanPass,
       },
+      connectionTimeout: 6000,
+      greetingTimeout: 6000,
+      socketTimeout: 10000,
     });
     return transporter;
   }
@@ -43,13 +46,20 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams): P
 
   if (mailer) {
     try {
-      await mailer.sendMail({
+      const sendPromise = mailer.sendMail({
         from: emailFrom,
         to,
         subject,
         html,
         text,
       });
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("SMTP sendMail timed out after 8s")), 8000)
+      );
+
+      await Promise.race([sendPromise, timeoutPromise]);
+      console.log(`[DevVerse Email] Dispatched to ${to}`);
       return true;
     } catch (err: any) {
       console.error("[Email Service Error]", err.message);

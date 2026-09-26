@@ -37,7 +37,7 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push(`/verify?email=${encodeURIComponent(email)}`);
+      window.location.href = `/verify?email=${encodeURIComponent(email)}`;
     } catch {
       setError("An unexpected network error occurred.");
       setLoading(false);

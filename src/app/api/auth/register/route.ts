@@ -96,8 +96,10 @@ export async function POST(req: NextRequest) {
 
     await verificationCodes.insertOne(verificationRecord);
 
-    // Send verification email
-    await sendVerificationCodeEmail(email, code, username);
+    // Dispatch verification email asynchronously so UI advances instantly to /verify
+    sendVerificationCodeEmail(email, code, username).catch((err) => {
+      console.error("[Register Email Dispatch Error]", err.message);
+    });
 
     // Write audit log
     await logActivity({
