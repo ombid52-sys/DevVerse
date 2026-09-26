@@ -7,7 +7,7 @@ interface SendEmailParams {
   text: string;
 }
 
-const emailFrom = process.env.EMAIL_FROM || '"DevVerse" <no-reply@devverse.io>';
+const emailFrom = process.env.EMAIL_FROM || 'DevVerse <onboarding@resend.dev>';
 
 let transporter: nodemailer.Transporter | null = null;
 
