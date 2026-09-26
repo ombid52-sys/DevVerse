@@ -30,20 +30,20 @@ export async function setSessionCookie(payload: SessionPayload): Promise<void> {
   const token = await createSessionToken(payload);
   const cookieStore = await cookies();
 
-  let isSecure = false;
+  let isSecure = process.env.NODE_ENV === "production";
   try {
     const headerStore = await headers();
     const proto = headerStore.get("x-forwarded-proto");
     const host = headerStore.get("host") || "";
     const isLocalhost =
       host.includes("localhost") || host.includes("127.0.0.1") || host.includes("192.168.");
-    if (proto === "https" && !isLocalhost) {
-      isSecure = true;
-    } else if (process.env.APP_URL?.startsWith("https://") && !isLocalhost) {
+    if (isLocalhost) {
+      isSecure = false;
+    } else if (proto === "https" || process.env.NODE_ENV === "production" || process.env.APP_URL?.startsWith("https://")) {
       isSecure = true;
     }
   } catch {
-    isSecure = false;
+    // Retain default based on NODE_ENV
   }
 
   cookieStore.set(AUTH_LIMITS.COOKIE_NAME, token, {

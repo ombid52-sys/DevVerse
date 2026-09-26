@@ -6,10 +6,11 @@ import { sendVerificationCodeEmail, sendPasswordResetEmail } from "@/lib/email";
 import { logActivity } from "@/lib/audit";
 import { AUTH_LIMITS } from "@/lib/constants";
 import { VerificationCode } from "@/types";
+import { getClientIp } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const ip = getClientIp(req);
     const body = await req.json();
 
     const parsed = resendCodeSchema.safeParse(body);

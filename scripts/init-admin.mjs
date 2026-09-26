@@ -2,7 +2,11 @@ import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
-const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/devverse";
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  console.error("[Fatal Error] MONGODB_URI environment variable is required.");
+  process.exit(1);
+}
 
 async function main() {
   console.log("=== DevVerse Admin Provisioning Tool ===");

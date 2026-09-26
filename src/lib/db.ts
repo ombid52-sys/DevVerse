@@ -184,14 +184,23 @@ class InMemoryDb {
 }
 
 export async function getDb(): Promise<Db | InMemoryDb> {
-  // If we already know MongoDB is unreachable or in-memory is forced
-  if (global._inMemoryDb) {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // In production, strictly disallow any in-memory database localization
+  if (!isProduction && global._inMemoryDb) {
     return global._inMemoryDb;
+  }
+
+  if (isProduction && !process.env.MONGODB_URI) {
+    throw new Error(
+      "[DevVerse DB Fatal] MONGODB_URI is required in production environment. Local database fallbacks are disabled."
+    );
   }
 
   try {
     if (!clientPromise) {
-      client = new MongoClient(uri, {
+      const targetUri = process.env.MONGODB_URI || uri;
+      client = new MongoClient(targetUri, {
         serverSelectionTimeoutMS: 5000,
         connectTimeoutMS: 5000,
       });
@@ -200,8 +209,12 @@ export async function getDb(): Promise<Db | InMemoryDb> {
     const c = await clientPromise;
     return c.db("devverse");
   } catch (err: any) {
+    if (isProduction) {
+      console.error(`[DevVerse DB Fatal] Failed to connect to MongoDB Atlas in production (${err.message})`);
+      throw new Error(`Database connection failure: ${err.message}. Local in-memory fallback is disabled in production.`);
+    }
     console.warn(
-      `[DevVerse DB] Notice: MongoDB connection to ${uri} failed (${err.message}). Using resilient in-memory storage adapter for local operation.`
+      `[DevVerse DB] Notice: MongoDB connection failed (${err.message}). Using resilient in-memory storage adapter for local operation.`
     );
     if (!global._inMemoryDb) {
       global._inMemoryDb = new InMemoryDb();

@@ -5,10 +5,11 @@ import { setSessionCookie } from "@/lib/session";
 import { logActivity } from "@/lib/audit";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { AUTH_LIMITS } from "@/lib/constants";
+import { getClientIp } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const ip = getClientIp(req);
     const body = await req.json();
 
     const parsed = verifyCodeSchema.safeParse(body);

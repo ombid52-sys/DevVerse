@@ -8,10 +8,11 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { AUTH_LIMITS } from "@/lib/constants";
 import { User, VerificationCode } from "@/types";
 import { ObjectId } from "mongodb";
+import { getClientIp } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const ip = getClientIp(req);
     const rateCheck = checkRateLimit(`register:${ip}`, {
       windowMs: 15 * 60 * 1000,
       maxRequests: 10,

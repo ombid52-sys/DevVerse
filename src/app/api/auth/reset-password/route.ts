@@ -5,10 +5,11 @@ import { hashPassword } from "@/lib/auth";
 import { logActivity } from "@/lib/audit";
 import { clearSessionCookie } from "@/lib/session";
 import { AUTH_LIMITS } from "@/lib/constants";
+import { getClientIp } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const ip = getClientIp(req);
     const body = await req.json();
 
     const parsed = resetPasswordSchema.safeParse(body);
