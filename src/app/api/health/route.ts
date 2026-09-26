@@ -40,7 +40,12 @@ export async function GET() {
       privateKeyStatus: isValidKey ? "valid_rsa_pem" : rawKey ? "invalid_format_key_id" : "missing",
     },
     email: {
-      provider: process.env.EMAIL_PROVIDER || "development",
+      provider: process.env.RESEND_API_KEY
+        ? "resend-api"
+        : process.env.EMAIL_PROVIDER === "smtp"
+        ? "smtp-nodemailer"
+        : "development-fallback",
+      hasResendApiKey: Boolean(process.env.RESEND_API_KEY),
     },
   });
 }

@@ -42,6 +42,38 @@ function getTransporter(): nodemailer.Transporter | null {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailParams): Promise<boolean> {
+  // 1. Primary Cloud Provider: Resend REST API (over HTTPS port 443 - completely bypasses Render SMTP port blocks)
+  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  if (resendApiKey) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM || "DevVerse <onboarding@resend.dev>",
+          to: [to],
+          subject,
+          html,
+          text,
+        }),
+      });
+
+      if (res.ok) {
+        console.log(`[DevVerse Email] Successfully dispatched via Resend API to ${to}`);
+        return true;
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        console.error("[DevVerse Email] Resend API error:", errJson);
+      }
+    } catch (err: any) {
+      console.error("[DevVerse Email] Resend API call failed:", err.message);
+    }
+  }
+
+  // 2. Secondary Provider: Direct SMTP Transport
   const mailer = getTransporter();
 
   if (mailer) {
