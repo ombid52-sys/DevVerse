@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "DevVerse — Cloud Application Showcase & Source-Code Platform",
   description:
     "Discover exceptional software applications, explore comprehensive source code repositories, and publish applications across Windows, Linux, macOS, Android, and Web.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
